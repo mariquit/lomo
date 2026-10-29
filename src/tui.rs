@@ -78,8 +78,8 @@ fn missing_board_message(path: &Path) -> String {
     };
     format!(
         "You don't have {what} yet.\n\
-         Run `lomo setup` if you have not already. It installs the notation your agent follows without loading a skill.\n\
-         Then ask your agent to create a todo list."
+         Ask your agent to first load the lomo skill (e.g. \"load the lomo skill\" or \"load the lomo skill before you create a todo list\").\n\
+         Once loaded, you can ask your agent to create a todo list."
     )
 }
 
@@ -494,7 +494,10 @@ fn draw(frame: &mut Frame, app: &App) {
     frame.render_widget(
         Paragraph::new(vec![
             Line::from("  ┌───────────────┐"),
-            Line::from("  │ l │ o │ m │ o │  Low Overhead Markdown Overwatch"),
+            Line::from(format!(
+                "  │ l │ o │ m │ o │  Low Overhead Markdown Overwatch v{}",
+                env!("CARGO_PKG_VERSION")
+            )),
             Line::from(
                 "  └───────────────┘  Copyright (c) 2026 John Anthony Mariquit <john@mariquit.com>",
             ),
@@ -647,10 +650,11 @@ fn inspector_text(app: &App) -> Vec<Line<'static>> {
         ]),
         Line::from(vec![
             Span::styled("priority  ", Style::default().fg(Color::DarkGray)),
-            Span::raw(match task.priority {
-                Some(priority) => format!("{priority} {}", priority.name()),
-                None => "missing".into(),
-            }),
+            Span::raw(format!(
+                "{} {}",
+                task.effective_priority(),
+                task.effective_priority().name()
+            )),
         ]),
         Line::from(""),
         Line::from(Span::styled(
@@ -675,7 +679,7 @@ fn inspector_text(app: &App) -> Vec<Line<'static>> {
     if !notes.is_empty() {
         lines.push(Line::from(""));
         lines.push(Line::from(Span::styled(
-            "context",
+            "notes",
             Style::default().fg(Color::DarkGray),
         )));
         for (_, note) in notes {

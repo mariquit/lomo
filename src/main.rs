@@ -49,12 +49,12 @@ fn run() -> Result<(), LomoError> {
         }
         ["help" | "--help" | "-h"] => {
             println!("\
-lomo {version} — Low Overhead Markdown Overwatch
+lomo — Low Overhead Markdown Overwatch
 Copyright (c) 2026 John Anthony Mariquit <john@mariquit.com>
 
 Usage:
   lomo [--file PATH]     View an existing TODO.md and add human annotations
-  lomo setup [AGENT]     Install the skill and global notation (default: opencode)
+  lomo setup [AGENT]     Install the guidance skill (default: opencode)
 
 Agents: opencode, claude, codex, cursor
 PATH defaults to TODO.md, or $LOMO_FILE.
@@ -63,15 +63,16 @@ The agent creates and manages TODO.md directly, including task IDs, status,
 priority, and Git commits. LOMO does not create tasks or manage their progress.
 
 Getting started:
-  LOMO does not create TODO.md.
+  The lomo skill is not loaded automatically, and LOMO does not create TODO.md.
 
-  1. Run `lomo setup` for your agent. This installs global notation the agent
-     follows without loading a skill.
-  2. Ask your agent to create a todo list.
-  3. Run `lomo` to view it and leave annotations.
+  1. Run `lomo setup` for your agent.
+  2. Ask your agent to load the skill first, for example:
+       load the lomo skill
+       load the lomo skill before you create a todo list
+  3. Ask your agent to create a todo list.
+  4. Run `lomo` to view it and leave annotations.
 
-  Loading the lomo skill is optional. It has the full writing rules.
-  See GETTING_STARTED.md.", version = env!("CARGO_PKG_VERSION"));
+  See GETTING_STARTED.md.");
             Ok(())
         }
         _ => Err(LomoError::Message(

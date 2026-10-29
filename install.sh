@@ -42,37 +42,4 @@ if [ -z "$expected" ] || [ "$expected" != "$actual" ]; then
 fi
 echo "checksum ok"
 chmod +x "$tmpdir/lomo"
-
-home="${HOME:-${USERPROFILE:-}}"
-cargo_home="${CARGO_HOME:-$home/.cargo}"
-bin_dir=""
-old_ifs=$IFS
-IFS=':'
-for candidate in "$home/.local/bin" "$cargo_home/bin" "$home/.bun/bin"; do
-  candidate=${candidate%/}
-  for dir in $PATH; do
-    dir=${dir%/}
-    if [ "$dir" = "$candidate" ]; then
-      bin_dir=$candidate
-      break 2
-    fi
-  done
-done
-IFS=$old_ifs
-if [ -z "$bin_dir" ]; then
-  bin_dir="$home/.local/bin"
-fi
-mkdir -p "$bin_dir"
-name=lomo
-case "$asset" in
-  *.exe) name=lomo.exe ;;
-esac
-cp "$tmpdir/lomo" "$bin_dir/$name"
-chmod +x "$bin_dir/$name"
-for stale in "$home/.local/bin/$name" "$cargo_home/bin/$name" "$home/.bun/bin/$name"; do
-  if [ -f "$stale" ] && [ "$stale" != "$bin_dir/$name" ]; then
-    cp "$tmpdir/lomo" "$stale"
-    chmod +x "$stale"
-  fi
-done
-LOMO_BIN_DIR="$bin_dir" "$bin_dir/$name" setup
+"$tmpdir/lomo" setup

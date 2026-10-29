@@ -1,5 +1,7 @@
 # Install LOMO
 
+Copyright (c) 2026 John Anthony Mariquit <john@mariquit.com>
+
 LOMO views and annotates an existing, agent-owned `TODO.md`. It does not create
 the file or manage tasks, priorities, tests, or Git.
 
@@ -17,8 +19,6 @@ the binary for your platform from GitHub Releases, or build from source:
 cargo install --path .
 ```
 
-`cargo install` itself always uses Cargo's bin (`~/.cargo/bin`, or `$CARGO_HOME/bin`).
-
 ## Install guidance for your agent
 
 ```bash
@@ -28,43 +28,31 @@ lomo setup codex
 lomo setup cursor
 ```
 
-Setup installs the guidance skill, a compact global notation block, and the
-binary. It does not add plugins or hooks. The notation block is inserted between
-`<!-- lomo:start -->` and `<!-- lomo:end -->`. Existing text outside that block
-is preserved. Setup does not write this repository's `AGENTS.md`.
+Setup writes only the guidance skill and installs/copies the binary. It does
+not add plugins, hooks, persistent instruction blocks, or Cursor rules.
 
-| Agent | Guidance skill | Always-available notation |
-| --- | --- | --- |
-| OpenCode | `~/.config/opencode/skills/lomo/SKILL.md` (respects `XDG_CONFIG_HOME`) | `~/.config/opencode/AGENTS.md` |
-| Claude Code | `~/.claude/skills/lomo/SKILL.md` | `~/.claude/CLAUDE.md` |
-| Codex | `~/.agents/skills/lomo/SKILL.md` | `~/.codex/AGENTS.md` |
-| Cursor | `~/.cursor/skills/lomo/SKILL.md` | `~/.cursor/rules/lomo.mdc` |
+| Agent | Guidance skill |
+| --- | --- |
+| OpenCode | `~/.config/opencode/skills/lomo/SKILL.md` (respects `XDG_CONFIG_HOME`) |
+| Claude Code | `~/.claude/skills/lomo/SKILL.md` |
+| Codex | `~/.agents/skills/lomo/SKILL.md` |
+| Cursor | `~/.cursor/skills/lomo/SKILL.md` |
 
-OpenCode steering stays in OpenCode's global config, separate from Claude.
-The Codex path is Codex's own global instructions, not this repository's scope file.
+The skill describes status, priority, IDs, rich context, and human comments.
+Agents read and edit `TODO.md` directly. Skill loading depends on the agent;
+invoke the `lomo` skill explicitly if it is not picked up automatically.
 
-The skill has the full writing rules. The global block is the short notation,
-so the agent can follow it without loading the skill. Invoke the `lomo` skill
-when creating or revising a list.
-
-Setup and `install.sh` place the binary in the first of these directories that
-is on `PATH`:
-
-1. `~/.local/bin`
-2. `~/.cargo/bin` (`$CARGO_HOME/bin` when that is set)
-3. `~/.bun/bin`
-
-If none of them is on `PATH`, the binary goes in `~/.local/bin` and setup prints
-a reminder to add it. `LOMO_BIN_DIR` overrides the search. On Windows the file
-is `lomo.exe`.
+Setup puts the binary in `~/.bun/bin` when that directory is on `PATH`, otherwise
+`~/.local/bin`. On Windows it installs `lomo.exe`. Ensure the destination is on
+`PATH`; setup prints a reminder if it is not.
 
 ## Upgrading an older setup
 
 Rebuild/reinstall, then rerun setup for **each agent you previously configured**.
-Setup removes recognized LOMO-owned hooks and the old OpenCode LOMO plugin, then
-refreshes the marked notation block. Other hooks, user instructions, and
-configuration are preserved. Invalid JSON or an incomplete marked block is
-reported rather than overwritten.
+Setup removes recognized LOMO-owned hooks, the old OpenCode LOMO plugin, or an
+owned Cursor rule. It does not read or write `AGENTS.md` or `CLAUDE.md`. Other
+hooks, user instructions, and configuration are preserved. Invalid JSON or an
+incomplete marked block is reported rather than overwritten.
 
 Restart the agent afterward so old hooks/plugins/instructions are unloaded.
 Restart an older running LOMO TUI too: task creation and priority-changing keys

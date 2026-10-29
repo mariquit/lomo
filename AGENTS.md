@@ -11,7 +11,7 @@ LOMO is a human viewer and annotation interface for an agent-owned `TODO.md`. Th
 - Fold, search, filter, and inspect.
 - Let the human edit one field: the trailing `[annotation]…[/annotation]` note. Hide the markers, show the contents in yellow, and restore the markers on save.
 - Install a guidance skill that tells the agent the notation and to read those notes. Priority changes are suggestions in the note, not LOMO controls.
-- `lomo setup` installs that skill, a compact global steering block, and the binary. OpenCode's block goes in its global config `AGENTS.md`, not in `CLAUDE.md` and not in this scope file. It preserves the rest of an existing instructions file and removes old LOMO hooks and plugins.
+- `lomo setup` installs that skill and the binary, and removes old LOMO hooks and plugins.
 
 ## Out of scope
 

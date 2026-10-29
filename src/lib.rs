@@ -145,6 +145,12 @@ pub struct Task {
     pub raw: String,
 }
 
+impl Task {
+    pub fn effective_priority(&self) -> Priority {
+        self.priority.unwrap_or(Priority::P2)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LineKind {
     Task(Task),
@@ -420,10 +426,10 @@ pub fn parse_task_line(line: &str) -> Option<Task> {
             .as_bytes()
             .get(1..7)
             .is_some_and(|hex| hex.iter().all(u8::is_ascii_hexdigit))
-        && rest[7..].starts_with(':')
+        && (rest.len() == 7 || rest[7..].starts_with(char::is_whitespace))
     {
         let id = normalize_id(&rest[..7]);
-        rest = rest[8..].trim_start();
+        rest = rest[7..].trim_start();
         Some(id)
     } else {
         None
@@ -467,7 +473,7 @@ pub fn matches_filter(doc: &Document, task: &Task, query: &str) -> bool {
         .strip_prefix("p:")
         .or_else(|| query.strip_prefix("priority:"))
     {
-        return task.priority == Priority::from_token(priority);
+        return Priority::from_token(priority) == Some(task.effective_priority());
     }
     if let Some(status) = query
         .strip_prefix("status:")
