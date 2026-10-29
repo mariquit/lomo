@@ -70,16 +70,23 @@ struct App {
     last_disk: String,
 }
 
+fn missing_board_message(path: &Path) -> String {
+    let what = if path.file_name().and_then(|name| name.to_str()) == Some("TODO.md") {
+        "a TODO.md".to_string()
+    } else {
+        path.display().to_string()
+    };
+    format!(
+        "You don't have {what} yet.\n\
+         Ask your agent to first load the lomo skill (e.g. \"load the lomo skill\" or \"load the lomo skill before you create a todo list\").\n\
+         Once loaded, you can ask your agent to create a todo list."
+    )
+}
+
 pub fn run(path: &Path) -> io::Result<()> {
     let doc = load(path).map_err(|err| {
         if err.kind() == io::ErrorKind::NotFound {
-            io::Error::new(
-                err.kind(),
-                format!(
-                    "{} does not exist; ask the agent to create it",
-                    path.display()
-                ),
-            )
+            io::Error::new(err.kind(), missing_board_message(path))
         } else {
             err
         }

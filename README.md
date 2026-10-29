@@ -102,6 +102,8 @@ There are no task creation, status, or priority-changing keys.
 agent to own the file, maintain the notation, read human comments, and consider
 an atomic Git commit when completing a task. It does not impose a CLI workflow.
 
+See [GETTING_STARTED.md](GETTING_STARTED.md) before the first todo list. The lomo skill is not loaded automatically.
+
 See [INSTALL.md](INSTALL.md) for installation and upgrading older setups.
 
 ## License

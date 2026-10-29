@@ -10,7 +10,12 @@ fn main() -> ExitCode {
     match run() {
         Ok(()) => ExitCode::SUCCESS,
         Err(err) => {
-            eprintln!("lomo: {err}");
+            let text = err.to_string();
+            if text.contains('\n') {
+                eprintln!("{text}");
+            } else {
+                eprintln!("lomo: {text}");
+            }
             ExitCode::FAILURE
         }
     }
@@ -55,7 +60,19 @@ Agents: opencode, claude, codex, cursor
 PATH defaults to TODO.md, or $LOMO_FILE.
 
 The agent creates and manages TODO.md directly, including task IDs, status,
-priority, and Git commits. LOMO does not create tasks or manage their progress.");
+priority, and Git commits. LOMO does not create tasks or manage their progress.
+
+Getting started:
+  The lomo skill is not loaded automatically, and LOMO does not create TODO.md.
+
+  1. Run `lomo setup` for your agent.
+  2. Ask your agent to load the skill first, for example:
+       load the lomo skill
+       load the lomo skill before you create a todo list
+  3. Ask your agent to create a todo list.
+  4. Run `lomo` to view it and leave annotations.
+
+  See GETTING_STARTED.md.");
             Ok(())
         }
         _ => Err(LomoError::Message(
