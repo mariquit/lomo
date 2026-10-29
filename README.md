@@ -30,7 +30,9 @@ It has no task-management CLI, hooks, session state, or Git integration.
 
 Context and implementation plans written by the agent belong here.
 
-- [.] (p2) #a1b2c3 Replace the login flow [annotation]**Please prioritize the migration path first.** Consider p1; see [the design](design.md).[/annotation]
+- [.] (p2) #a1b2c3: Replace the login flow [annotation]**Please prioritize the migration path first.**[/annotation]
+  - Context/reference: Existing sessions must survive the replacement. See [the design](design.md).
+  - Done when: New logins use the replacement flow and existing sessions still authenticate.
 ```
 
 Humans suggest changes through notes. The agent reads/re-reads the file and
@@ -48,14 +50,16 @@ new line or paste multiline Markdown; the closing marker ends that annotation.
 ## Task notation
 
 ```text
-- [STATUS] [(pPRIORITY)] #hhhhhh Description [annotation]Markdown text[/annotation]
+- [STATUS] (pPRIORITY) #hhhhhh: Description [annotation]Markdown text[/annotation]
 ```
 
-The agent chooses unique six-hex IDs and keeps each ID with its task. Priority
-is optional (`p0`–`p4`); omitted priority means `p2`. The entire annotation field
+The agent chooses unique six-hex IDs, writes each as `#hhhhhh:`, and keeps each ID with its task. Priority
+is required (`p0`–`p4`). There is no default. The entire annotation field
 is optional. The marker strings are reserved delimiters, not part of the note's
-editable contents. Nest tasks with indentation.
-Headings, prose, code examples, and other Markdown provide rich context.
+editable contents. The headline stays one line. Required supporting bullets are
+`Context/reference` and `Done when`. Optional bullets are `Dependencies`,
+`Constraints`, and `Locations`; omit them when they add nothing. Nest child
+tasks with indentation. Supporting bullets are not child tasks.
 
 | Status | Meaning |
 | --- | --- |

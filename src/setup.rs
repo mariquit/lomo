@@ -7,6 +7,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 const SKILL: &str = include_str!("../assets/SKILL.md");
+const STEERING: &str = include_str!("../assets/STEERING.md");
 const START: &str = "<!-- lomo:start -->";
 const END: &str = "<!-- lomo:end -->";
 
@@ -33,12 +34,12 @@ pub fn run(target: &str) -> Result<(), LomoError> {
         fs::remove_file(&skill)?;
     }
     fs::write(&skill, SKILL)?;
+    let steering = install_steering(target)?;
     let binary = install_binary()?;
-    println!("skill   {}", skill.display());
-    println!("binary  {}", binary.display());
-    println!(
-        "Guidance only: the agent reads and edits TODO.md directly. No hooks or rules installed."
-    );
+    println!("skill    {}", skill.display());
+    println!("steering {}", steering.display());
+    println!("binary   {}", binary.display());
+    println!("Guidance only: the agent reads and edits TODO.md directly. No hooks installed.");
     Ok(())
 }
 
@@ -126,9 +127,81 @@ fn install_binary() -> Result<PathBuf, LomoError> {
     Ok(destination)
 }
 
+fn install_steering(target: &str) -> Result<PathBuf, LomoError> {
+    let path = steering_path(target)?;
+    if target == "cursor" && !path.exists() {
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        fs::write(
+            &path,
+            "---\ndescription: TODO.md notation\nalwaysApply: true\n---\n\n",
+        )?;
+    }
+    upsert_block(&path, STEERING.trim_end())?;
+    Ok(path)
+}
+
+fn steering_path(target: &str) -> Result<PathBuf, LomoError> {
+    match target {
+        // OpenCode's own global instructions, not ~/.claude/CLAUDE.md and not
+        // this repository's scope file.
+        "opencode" => Ok(config_dir("opencode")?.join("AGENTS.md")),
+        "claude" => {
+            let dir = env::var_os("LOMO_CLAUDE_CONFIG")
+                .map(PathBuf::from)
+                .unwrap_or(home()?.join(".claude"));
+            Ok(dir.join("CLAUDE.md"))
+        }
+        "codex" => Ok(config_dir("codex")?.join("AGENTS.md")),
+        "cursor" => Ok(config_dir("cursor")?.join("rules/lomo.mdc")),
+        _ => Err(LomoError::Message(
+            "choose opencode, claude, codex, or cursor".into(),
+        )),
+    }
+}
+
+/// Insert or replace only the marked LOMO section. All other text stays.
+fn upsert_block(path: &Path, body: &str) -> Result<(), LomoError> {
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    let existing = match fs::read_to_string(path) {
+        Ok(text) => text,
+        Err(err) if err.kind() == io::ErrorKind::NotFound => String::new(),
+        Err(err) => return Err(err.into()),
+    };
+    let block = format!("{START}\n{body}\n{END}");
+    let updated = if let Some(start) = existing.find(START) {
+        let Some(rel_end) = existing[start..].find(END) else {
+            return Err(LomoError::Message(format!(
+                "incomplete LOMO block in {}; not overwritten",
+                path.display()
+            )));
+        };
+        let end = start + rel_end + END.len();
+        format!("{}{block}{}", &existing[..start], &existing[end..])
+    } else if existing.trim().is_empty() {
+        format!("{block}\n")
+    } else {
+        let mut out = existing;
+        if !out.ends_with('\n') {
+            out.push('\n');
+        }
+        if !out.ends_with("\n\n") {
+            out.push('\n');
+        }
+        out.push_str(&block);
+        out.push('\n');
+        out
+    };
+    fs::write(path, updated)?;
+    Ok(())
+}
+
 fn cleanup_legacy(target: &str, config: &Path) -> Result<(), LomoError> {
-    // Never read or write AGENTS.md. That name belongs to the user or to this
-    // project's scope file, not to setup.
+    // Do not strip instruction files here. Steering is installed separately and
+    // must not be removed as legacy cleanup.
     if target == "cursor" {
         remove_instruction_block(&config.join("rules/lomo.mdc"), true)?;
     }

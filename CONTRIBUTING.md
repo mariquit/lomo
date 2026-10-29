@@ -62,7 +62,7 @@ add locks, checkpoints, session state, or mutation APIs for agent task managemen
 ### B. Regex & Syntax Consistency
 All parsing changes must conform strictly to the canonical task line regex:
 ```text
-(?s)^(?P<indent>[ \t]*)-\s*\[(?P<status>[ .:\+?!x~])\](?:\s*\((?P<priority>p[0-4])\))?\s*(?P<id>#[0-9a-fA-F]{6})\s+(?P<description>.*?)(?:\s+\[annotation\](?P<annotation>.*?)\[/annotation\])?\s*$
+(?s)^(?P<indent>[ \t]*)-\s*\[(?P<status>[ .:\+?!x~])\]\s*\((?P<priority>p[0-4])\)\s*(?P<id>#[0-9a-fA-F]{6}):\s*(?P<description>.*?)(?:\s+\[annotation\](?P<annotation>.*?)\[/annotation\])?\s*$
 ```
 If you propose changing task line syntax or status flags, you must update:
 1. `src/lib.rs`

@@ -2,7 +2,7 @@
 
 Copyright (c) 2026 John Anthony Mariquit <john@mariquit.com>
 
-LOMO views an agent-owned `TODO.md`. It does not create that file. The `lomo` skill is not loaded automatically, so ask your agent to load it before asking for a todo list.
+LOMO views an agent-owned `TODO.md`. It does not create that file. Setup installs a short global notation block, so the agent can follow the format without loading the skill. The skill has the full writing rules and is not loaded automatically.
 
 ## 1. Install
 
@@ -16,7 +16,7 @@ Use `lomo setup claude`, `lomo setup codex`, or `lomo setup cursor` for another 
 
 ## 2. Load the skill
 
-Ask your agent to load the skill before it creates a list. For example:
+Ask your agent to load the skill before it creates a list. The global block is only the short notation. For example:
 
 ```agent
 load the lomo skill

@@ -54,7 +54,7 @@ Copyright (c) 2026 John Anthony Mariquit <john@mariquit.com>
 
 Usage:
   lomo [--file PATH]     View an existing TODO.md and add human annotations
-  lomo setup [AGENT]     Install the guidance skill (default: opencode)
+  lomo setup [AGENT]     Install the skill and global notation (default: opencode)
 
 Agents: opencode, claude, codex, cursor
 PATH defaults to TODO.md, or $LOMO_FILE.
@@ -65,8 +65,8 @@ priority, and Git commits. LOMO does not create tasks or manage their progress.
 Getting started:
   The lomo skill is not loaded automatically, and LOMO does not create TODO.md.
 
-  1. Run `lomo setup` for your agent.
-  2. Ask your agent to load the skill first, for example:
+  1. Run `lomo setup` for your agent. This installs a short global notation block.
+  2. Ask your agent to load the skill for the full writing rules, for example:
        load the lomo skill
        load the lomo skill before you create a todo list
   3. Ask your agent to create a todo list.

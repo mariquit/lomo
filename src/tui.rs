@@ -647,11 +647,10 @@ fn inspector_text(app: &App) -> Vec<Line<'static>> {
         ]),
         Line::from(vec![
             Span::styled("priority  ", Style::default().fg(Color::DarkGray)),
-            Span::raw(format!(
-                "{} {}",
-                task.effective_priority(),
-                task.effective_priority().name()
-            )),
+            Span::raw(match task.priority {
+                Some(priority) => format!("{priority} {}", priority.name()),
+                None => "missing".into(),
+            }),
         ]),
         Line::from(""),
         Line::from(Span::styled(
@@ -676,7 +675,7 @@ fn inspector_text(app: &App) -> Vec<Line<'static>> {
     if !notes.is_empty() {
         lines.push(Line::from(""));
         lines.push(Line::from(Span::styled(
-            "notes",
+            "context",
             Style::default().fg(Color::DarkGray),
         )));
         for (_, note) in notes {
