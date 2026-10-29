@@ -69,4 +69,10 @@ case "$asset" in
 esac
 cp "$tmpdir/lomo" "$bin_dir/$name"
 chmod +x "$bin_dir/$name"
+for stale in "$home/.local/bin/$name" "$cargo_home/bin/$name" "$home/.bun/bin/$name"; do
+  if [ -f "$stale" ] && [ "$stale" != "$bin_dir/$name" ]; then
+    cp "$tmpdir/lomo" "$stale"
+    chmod +x "$stale"
+  fi
+done
 LOMO_BIN_DIR="$bin_dir" "$bin_dir/$name" setup

@@ -102,13 +102,14 @@ fn install_binary() -> Result<PathBuf, LomoError> {
         bin_directory(&dirs)?
     };
     fs::create_dir_all(&directory)?;
-    let destination = directory.join(if cfg!(windows) { "lomo.exe" } else { "lomo" });
-    if source.canonicalize().ok() != destination.canonicalize().ok() {
-        fs::copy(&source, &destination)?;
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::PermissionsExt;
-            fs::set_permissions(&destination, fs::Permissions::from_mode(0o755))?;
+    let name = if cfg!(windows) { "lomo.exe" } else { "lomo" };
+    let destination = directory.join(name);
+    copy_binary(&source, &destination)?;
+    // An older copy earlier on PATH would keep reporting the previous version.
+    for candidate in bin_candidates()? {
+        let existing = candidate.join(name);
+        if existing.is_file() {
+            copy_binary(&source, &existing)?;
         }
     }
     if !dirs
@@ -120,18 +121,38 @@ fn install_binary() -> Result<PathBuf, LomoError> {
     Ok(destination)
 }
 
-fn bin_directory(path_dirs: &[PathBuf]) -> Result<PathBuf, LomoError> {
+fn bin_candidates() -> Result<[PathBuf; 3], LomoError> {
     let home = home()?;
     let cargo = env::var_os("CARGO_HOME")
         .map(PathBuf::from)
         .unwrap_or_else(|| home.join(".cargo"))
         .join("bin");
-    let local = home.join(".local/bin");
-    let candidates = [local.clone(), cargo, home.join(".bun/bin")];
+    Ok([home.join(".local/bin"), cargo, home.join(".bun/bin")])
+}
+
+fn bin_directory(path_dirs: &[PathBuf]) -> Result<PathBuf, LomoError> {
+    let candidates = bin_candidates()?;
     Ok(candidates
-        .into_iter()
+        .iter()
         .find(|candidate| path_dirs.iter().any(|dir| same_dir(dir, candidate)))
-        .unwrap_or(local))
+        .cloned()
+        .unwrap_or_else(|| candidates[0].clone()))
+}
+
+fn copy_binary(source: &Path, destination: &Path) -> Result<(), LomoError> {
+    if source.canonicalize().ok() == destination.canonicalize().ok() && destination.exists() {
+        return Ok(());
+    }
+    if let Some(parent) = destination.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    fs::copy(source, destination)?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(destination, fs::Permissions::from_mode(0o755))?;
+    }
+    Ok(())
 }
 
 fn same_dir(left: &Path, right: &Path) -> bool {
