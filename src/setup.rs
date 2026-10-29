@@ -98,15 +98,8 @@ fn install_binary() -> Result<PathBuf, LomoError> {
         .unwrap_or_default();
     let directory = if let Some(path) = env::var_os("LOMO_BIN_DIR") {
         PathBuf::from(path)
-    } else if let Some(path) = dirs.iter().find(|path| {
-        path.to_string_lossy()
-            .replace('\\', "/")
-            .trim_end_matches('/')
-            .ends_with("/.bun/bin")
-    }) {
-        path.clone()
     } else {
-        home()?.join(".local/bin")
+        bin_directory(&dirs)?
     };
     fs::create_dir_all(&directory)?;
     let destination = directory.join(if cfg!(windows) { "lomo.exe" } else { "lomo" });
@@ -125,6 +118,33 @@ fn install_binary() -> Result<PathBuf, LomoError> {
         println!("note    add {} to PATH", directory.display());
     }
     Ok(destination)
+}
+
+fn bin_directory(path_dirs: &[PathBuf]) -> Result<PathBuf, LomoError> {
+    let home = home()?;
+    let cargo = env::var_os("CARGO_HOME")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| home.join(".cargo"))
+        .join("bin");
+    let local = home.join(".local/bin");
+    let candidates = [local.clone(), cargo, home.join(".bun/bin")];
+    Ok(candidates
+        .into_iter()
+        .find(|candidate| path_dirs.iter().any(|dir| same_dir(dir, candidate)))
+        .unwrap_or(local))
+}
+
+fn same_dir(left: &Path, right: &Path) -> bool {
+    fn normalize(path: &Path) -> String {
+        path.to_string_lossy()
+            .replace('\\', "/")
+            .trim_end_matches('/')
+            .to_string()
+    }
+    match (left.canonicalize(), right.canonicalize()) {
+        (Ok(left), Ok(right)) => left == right,
+        _ => normalize(left) == normalize(right),
+    }
 }
 
 fn install_steering(target: &str) -> Result<PathBuf, LomoError> {

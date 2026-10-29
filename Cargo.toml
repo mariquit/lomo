@@ -1,6 +1,6 @@
 [package]
 name = "lomo"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Low Overhead Markdown Overwatch — view and annotate an agent-owned TODO.md"
 authors = ["John Anthony Mariquit <john@mariquit.com>"]

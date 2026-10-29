@@ -78,8 +78,8 @@ fn missing_board_message(path: &Path) -> String {
     };
     format!(
         "You don't have {what} yet.\n\
-         Ask your agent to first load the lomo skill (e.g. \"load the lomo skill\" or \"load the lomo skill before you create a todo list\").\n\
-         Once loaded, you can ask your agent to create a todo list."
+         Run `lomo setup` if you have not already. It installs the notation your agent follows without loading a skill.\n\
+         Then ask your agent to create a todo list."
     )
 }
 

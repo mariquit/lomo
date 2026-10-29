@@ -1,7 +1,5 @@
 # Install LOMO
 
-Copyright (c) 2026 John Anthony Mariquit <john@mariquit.com>
-
 LOMO views and annotates an existing, agent-owned `TODO.md`. It does not create
 the file or manage tasks, priorities, tests, or Git.
 
@@ -18,6 +16,8 @@ the binary for your platform from GitHub Releases, or build from source:
 ```bash
 cargo install --path .
 ```
+
+`cargo install` itself always uses Cargo's bin (`~/.cargo/bin`, or `$CARGO_HOME/bin`).
 
 ## Install guidance for your agent
 
@@ -47,9 +47,16 @@ The skill has the full writing rules. The global block is the short notation,
 so the agent can follow it without loading the skill. Invoke the `lomo` skill
 when creating or revising a list.
 
-Setup puts the binary in `~/.bun/bin` when that directory is on `PATH`, otherwise
-`~/.local/bin`. On Windows it installs `lomo.exe`. Ensure the destination is on
-`PATH`; setup prints a reminder if it is not.
+Setup and `install.sh` place the binary in the first of these directories that
+is on `PATH`:
+
+1. `~/.local/bin`
+2. `~/.cargo/bin` (`$CARGO_HOME/bin` when that is set)
+3. `~/.bun/bin`
+
+If none of them is on `PATH`, the binary goes in `~/.local/bin` and setup prints
+a reminder to add it. `LOMO_BIN_DIR` overrides the search. On Windows the file
+is `lomo.exe`.
 
 ## Upgrading an older setup
 

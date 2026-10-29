@@ -49,7 +49,7 @@ fn run() -> Result<(), LomoError> {
         }
         ["help" | "--help" | "-h"] => {
             println!("\
-lomo — Low Overhead Markdown Overwatch
+lomo {version} — Low Overhead Markdown Overwatch
 Copyright (c) 2026 John Anthony Mariquit <john@mariquit.com>
 
 Usage:
@@ -63,16 +63,15 @@ The agent creates and manages TODO.md directly, including task IDs, status,
 priority, and Git commits. LOMO does not create tasks or manage their progress.
 
 Getting started:
-  The lomo skill is not loaded automatically, and LOMO does not create TODO.md.
+  LOMO does not create TODO.md.
 
-  1. Run `lomo setup` for your agent. This installs a short global notation block.
-  2. Ask your agent to load the skill for the full writing rules, for example:
-       load the lomo skill
-       load the lomo skill before you create a todo list
-  3. Ask your agent to create a todo list.
-  4. Run `lomo` to view it and leave annotations.
+  1. Run `lomo setup` for your agent. This installs global notation the agent
+     follows without loading a skill.
+  2. Ask your agent to create a todo list.
+  3. Run `lomo` to view it and leave annotations.
 
-  See GETTING_STARTED.md.");
+  Loading the lomo skill is optional. It has the full writing rules.
+  See GETTING_STARTED.md.", version = env!("CARGO_PKG_VERSION"));
             Ok(())
         }
         _ => Err(LomoError::Message(
